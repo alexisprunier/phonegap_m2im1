@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+
+<!--<html class="nojs" manifest="app.manifest" >-->
+
+<html class="nojs" >
+
+
+  <head>
+    <title>My First Appli</title>
+    <meta charset="utf-8" />
+    <meta viewport="width=320" />
+    
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="tablet.css" media="screen and (min-width: 1024px)" />
+    <link rel="stylesheet" href="./jquery.mobile-1.4.2/jquery.mobile-1.4.2.min.css" />
+  </head>
+  <body>
+      <div data-role="footer">
+          <div data-role="navbar" id="navbar">
+              <ul>
+                  <li><a href="#" id="el_accueil" class="el_navbar">Accueil</a></li>
+                  <li><a href="#" id="el_details" class="el_navbar">Prochain événement</a></li>
+                  <li><a href="#" id="el_souscrits" class="el_navbar">Mes événements</a></li>
+                  <li><a href="#" id="el_autres" class="el_navbar">Autres</a></li>
+              </ul>
+          </div>
+      </div>
+
+      <!-- Main pages -->
+
+      <div id="connexion">
+          <label id="pseudo_lab">Pseudonyme:</label>
+          <input type="text" id="pseudo_field"/>
+          <button type="button" id="pseudo_button">Connexion</button>
+          <div id="pseudo_message"></div>
+      </div>
+
+      <div id="accueil" class="page">
+          <div class="page_title">Mon prochain rendez-vous</div>
+          <div id="acc_content">YOUHOU2</div>
+      </div>
+
+      <div id="details" class="page">
+          <div class="page_title">Mon prochain événement</div>
+          <div id="det_content">YOUHOU</div>
+      </div>
+
+      <div id="souscrits" class="page">
+          <div class="page_title">Mes événements</div>
+          <div id="sou_content"></div>
+      </div>
+
+      <div id="autres" class="page">
+          <div class="page_title">Les autres événements</div>
+          <div id="aut_content">YOUHOU</div>
+      </div>
+
+      <!-- Others pages -->
+
+      <div id="detail_event">
+
+          <button class="detail_event_cl">SORS DE MON EVENEMENT</button>
+      </div>
+
+
+
+        <ul id="logging"></ul>
+
+
+        <!--<script src="modernizr.custom.22204.js"></script>-->
+        <script src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="GCMPlugin.js"></script>
+        <script type="text/javascript" charset="utf-8" src="CORDOVA_GCM_script.js"></script>
+        <script src="lawnchair-0.6.1.js"></script>
+        <script src="PushNotification.js"></script>
+        <script src="jquery-2.1.1.js"></script>
+        <script src="./jquery.mobile-1.4.2/jquery.mobile-1.4.2.min.js"></script>
+        <script src="mobile.js"></script>
+
+  </body>
+</html>
