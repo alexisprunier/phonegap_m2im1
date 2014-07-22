@@ -25,7 +25,7 @@
     }
 };
 var wsRequester = {};
-
+var map;
 	
 (function($){
 
@@ -42,8 +42,11 @@ var wsRequester = {};
         myApplication.showPage($(this).attr("id"), false);
     });
 
-    $(document).on("click", ".available_detail", function (event) {
+    $(document).on("click", ".available_detail,.myevent_detail", function (event) {
         myApplication.showDetail($(this).attr("event"));
+        wsRequester.getEventWithDetails(myApplication.successHandler,
+                                       myApplication.errorHandler,
+                                       $(this).attr("event"));
     });
 
     $(document).on("click", ".detail_event_cl", function (event) {
@@ -63,23 +66,43 @@ var wsRequester = {};
                                    myApplication.errorHandler,
                                    $("#pseudo_field").val());
     });
-	
+
+    $(document).on("click", ".myevent_unsubs", function (event) {
+        wsRequester.stopTakingPartToAnEvent(myApplication.successHandler,
+                                       myApplication.errorHandler,
+                                       $(this).attr("event"));
+    });
+
+    function onBackButton() {
+        myApplication.showPage(myApplication.actions.pop(), true);
+        if (myApplication.actions.length === 0) {
+            document.removeEventListener("backbutton");
+        }
+    }
+
     function onDeviceReady() {
         myApplication.showPage("el_connexion", true);
         var pushNotification = window.plugins.pushNotification;
         pushNotification.register(myApplication.successHandler,
                                   myApplication.errorHandler,
                                   { "senderID": "334799251298", "ecb": "myApplication.onNotificationGCM" });
-        
-        //google.load("maps", "3.8", { "callback": map, other_params: "sensor=true&language=en" });
     }
 
-    function onBackButton(){
-        myApplication.showPage(myApplication.actions.pop(), true);
-        if(myApplication.actions.length===0){
-            document.removeEventListener("backbutton");
-        }
+    /* Gestion de la prise de photo */
+
+    $(document).on("click", ".take_shot", function (event) {
+        navigator.camera.getPicture(cameraSuccess, cameraError, { quality: 50 });
+    });
+
+    function cameraSuccess(imageData) {
+        //var image = document.getElementById('myImage');
+        //image.src = "data:image/jpeg;base64," + imageData;
     }
+
+    function cameraError(message) {
+        alert('Failed because: ' + message);
+    }
+
 
     // MYAPPLICATION IMPLEMENTATION 
 	
@@ -125,63 +148,14 @@ var wsRequester = {};
 
     // GOOGLE MAP IMPLEMENTATION
 
-    function map() {
-        var latlng = new google.maps.LatLng(55.17, 23.76);
-        var myOptions = {
-            zoom: 6,
-            center: latlng,
-            streetViewControl: true,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            zoomControl: true
+    function initialize() {
+        var mapOptions = {
+            center: new google.maps.LatLng(-34.397, 150.644),
+            zoom: 8
         };
-        map = new google.maps.Map(document.getElementById("map"), myOptions);
-
-        google.maps.event.addListenerOnce(map, 'tilesloaded', function () {
-            watchID = navigator.geolocation.watchPosition(geo_success, geo_error, { maximumAge: 5000, timeout: 5000, enableHighAccuracy: true });
-        });
+        map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
     }
-
-    function geo_error(error) {
-        alert('code: ' + error.code + '\n' + 'message: ' + error.message + '\n');
-    }
-
-    function geo_success(position) {
-
-        map.setCenter(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
-        map.setZoom(15);
-
-        var info =
-        ('Latitude: ' + position.coords.latitude + '<br>' +
-        'Longitude: ' + position.coords.longitude + '<br>' +
-        'Altitude: ' + position.coords.altitude + '<br>' +
-        'Accuracy: ' + position.coords.accuracy + '<br>' +
-        'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '<br>' +
-        'Heading: ' + position.coords.heading + '<br>' +
-        'Speed: ' + position.coords.speed + '<br>' +
-        'Timestamp: ' + new Date(position.timestamp));
-
-        var point = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        if (!marker) {
-            //create marker
-            marker = new google.maps.Marker({
-                position: point,
-                map: map
-            });
-        } else {
-            //move marker to new position
-            marker.setPosition(point);
-        }
-        if (!infowindow) {
-            infowindow = new google.maps.InfoWindow({
-                content: info
-            });
-        } else {
-            infowindow.setContent(info);
-        }
-        google.maps.event.addListener(marker, 'click', function () {
-            infowindow.open(map, marker);
-        });
-    }
+    google.maps.event.addDomListener(window, 'load', initialize);
 
     // REQUESTER IMPLEMENTATION
 
@@ -249,7 +223,7 @@ var wsRequester = {};
 
     wsRequester.getMyEvents = function (success, error) {
         $.mobile.loading('show');
-        url = myApplication.url + "event/getNextFuturEventByRegistration?idUser=" + myApplication.connectedUser;
+        url = myApplication.url + "event/GetEventByUserRegistration?idUser=" + myApplication.connectedUser;
         $.ajax({
             url: url,
             type: 'GET',
@@ -328,7 +302,100 @@ var wsRequester = {};
             dataType: 'json',
             success: function (data) {
                 if (success) {
-                    navigator.notification.confirm("Vous avez été enregistré à l'événement", null);
+                    myApplication.feedContent("el_autres", false);
+                }
+            },
+            error: function () {
+                if (error) {
+                    error();
+                }
+            }
+        });
+        $.mobile.loading('hide')
+    }
+
+    wsRequester.stopTakingPartToAnEvent = function (success, error, eventid) {
+        url = myApplication.url + "Registration/DeleteRegistration?idUser=" + myApplication.connectedUser + "&idEvent=" + eventid;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (success) {
+                    myApplication.feedContent("el_souscrits", false);
+                    navigator.notification.alert(
+                        "Vous n'êtes plus lié à cet événement",
+                        null,
+                        'Succès', 
+                        'Ok,Cancel'
+                    );
+                }
+            },
+            error: function () {
+                if (error) {
+                    error();
+                }
+            }
+        });
+        $.mobile.loading('hide')
+    }
+
+    wsRequester.getEventWithDetails = function (success, error, eventid) {
+        url = myApplication.url + "Event/GetEventById?idevent=" + eventid;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (success) {
+                    var container = $("#detail_content");
+                    container.empty();
+                    var content = "";
+                    content += "<table>";
+                    content += "<tr><td class='f_column'>Titre:</td><td>" + data[0].title + "</td></tr>";
+                    content += "<tr><td class='f_column'>Description:</td><td>" + data[0].description + "</td></tr>";
+                    content += "<tr><td class='f_column'>Latitude:</td><td>" + data[0].latitude + "</td></tr>";
+                    content += "<tr><td class='f_column'>Longitude:</td><td>" + data[0].longitude + "</td></tr>>";
+                    content += "<tr><td class='f_column'>Date de début:</td><td>" + data[0].begin + "</td></tr>";
+                    content += "<tr><td class='f_column'>Date de fin:</td><td>" + data[0].end + "</td></tr>";
+                    content += "<tr><td class='f_column'>Etat:</td><td>" + data[0].state + "</td></tr>";
+                    content += "</table>";
+                    content += "<h1>Liste des participants</h1>";
+                    content += "<button class='take_shot' event='" + data[0].Id + "'>Ajouter une photo</button>";
+                    $("#logging").append(wsRequester.getUsersOfAnEvent(myApplication.successHandler,
+                                           myApplication.errorHandler,
+                                           data[0].Id));
+                    content += "<button class='detail_event_cl'>Retour</button>";
+                    $("#detail_content").html(content);
+                    map.setCenter(new google.maps.LatLng(data[0].latitude, data[0].longitude), 5);
+                    new google.maps.Marker({
+                        position: new google.maps.LatLng(data[0].latitude, data[0].longitude),
+                        map: map
+                    });
+                }
+            },
+            error: function () {
+                if (error) {
+                    error();
+                }
+            }
+        });
+        $.mobile.loading('hide')
+    }
+
+    wsRequester.getUsersOfAnEvent = function (success, error, eventid) {
+        url = myApplication.url + "User/GetUserByEvent?idEvent=" + eventid;
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (success) {
+                    var content = "";
+
+
+
+                    return "oui";
                 }
             },
             error: function () {

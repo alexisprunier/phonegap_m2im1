@@ -17,6 +17,11 @@
     </author>
 
     <gap:plugin name="com.phonegap.plugins.pushplugin" />
+
+    <plugin name="Notification" value="org.apache.cordova.Notification"/>
+    <plugin name="Camera" value="org.apache.cordova.CameraLauncher" />
+  
+  
 <!--
   334799251298
   AIzaSyC0RzicP67YSpBTZ-8TiLEPLFtAwGYOJzY

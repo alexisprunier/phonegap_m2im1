@@ -36,13 +36,15 @@
       </div>
 
       <div id="accueil" class="page">
-          <div class="page_title">Mon prochain rendez-vous</div>
-          <div id="acc_content">YOUHOU2</div>
+          <div class="page_title">Bienvenue</div>
+          <div id="acc_content">
+            <div class='empty'>Bienvenur sur l'application Phonegap</div>
+          </div>
       </div>
 
       <div id="details" class="page">
           <div class="page_title">Mon prochain événement</div>
-          <div id="det_content">YOUHOU</div>
+          <div id="det_content"></div>
       </div>
 
       <div id="souscrits" class="page">
@@ -52,22 +54,21 @@
 
       <div id="autres" class="page">
           <div class="page_title">Les autres événements</div>
-          <div id="aut_content">YOUHOU</div>
+          <div id="aut_content"></div>
       </div>
 
       <!-- Others pages -->
 
       <div id="detail_event">
-
-          <button class="detail_event_cl">SORS DE MON EVENEMENT</button>
+          <div id="map-canvas"></div>
+          <div id="detail_content"></div>
       </div>
 
 
-
-        <ul id="logging"></ul>
-
+        <!--<ul id="logging"></ul>-->
 
         <!--<script src="modernizr.custom.22204.js"></script>-->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
         <script src="cordova.js"></script>
         <script type="text/javascript" charset="utf-8" src="GCMPlugin.js"></script>
         <script type="text/javascript" charset="utf-8" src="CORDOVA_GCM_script.js"></script>
